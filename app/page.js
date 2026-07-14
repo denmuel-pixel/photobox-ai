@@ -160,10 +160,8 @@ export default function Home() {
     setShowScan(false);
   };
 
-  const isReady = photoBase64 && (
-    selectedTemplate && selectedTemplate.id !== "upload-style"
-      ? true
-      : styleBase64
+  const isReady = selectedTemplate && (
+    selectedTemplate.id !== "upload-style" ? true : styleBase64
   );
 
   return (
@@ -319,7 +317,9 @@ export default function Home() {
           )}
 
           {!photoBase64 && !isLoading && (
-            <p className="text-xs text-muted">Upload foto dan pilih template untuk memulai</p>
+              <p className="text-xs text-muted">
+                {selectedTemplate ? "Upload foto untuk memulai" : "Pilih template untuk memulai"}
+              </p>
           )}
         </motion.div>
       </section>
