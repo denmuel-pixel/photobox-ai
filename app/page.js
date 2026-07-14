@@ -10,7 +10,7 @@ import ScanAnimation from "@/components/ScanAnimation";
 import FaceDetection from "@/components/FaceDetection";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { STATS } from "@/lib/examples";
-import { TEMPLATES } from "@/lib/templates";
+import { TEMPLATES, getRandomPrompt } from "@/lib/templates";
 
 export default function Home() {
   const [photoBase64, setPhotoBase64] = useState(null);
@@ -74,8 +74,12 @@ export default function Home() {
       setError("Upload foto terlebih dahulu");
       return;
     }
-    if (!selectedTemplate && !styleBase64) {
-      setError("Pilih template atau upload gambar referensi");
+    if (!selectedTemplate) {
+      setError("Pilih gaya AI terlebih dahulu");
+      return;
+    }
+    if (selectedTemplate.id === "upload-style" && !styleBase64) {
+      setError("Upload gambar referensi style terlebih dahulu");
       return;
     }
 
@@ -86,13 +90,13 @@ export default function Home() {
     try {
       let prompt, strength, mode;
 
-      if (styleBase64) {
+      if (selectedTemplate?.id === "upload-style") {
         mode = "style-reference";
-        prompt = "Transform this portrait to match the style of the uploaded reference image, high quality, detailed";
-        strength = 0.85;
+        prompt = selectedTemplate.prompts[0];
+        strength = selectedTemplate.strength;
       } else {
         mode = "template";
-        prompt = selectedTemplate.prompt;
+        prompt = getRandomPrompt(selectedTemplate.id);
         strength = selectedTemplate.strength;
       }
 
@@ -156,7 +160,11 @@ export default function Home() {
     setShowScan(false);
   };
 
-  const isReady = photoBase64 && (selectedTemplate || styleBase64);
+  const isReady = photoBase64 && (
+    selectedTemplate && selectedTemplate.id !== "upload-style"
+      ? true
+      : styleBase64
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -242,12 +250,12 @@ export default function Home() {
                   onComplete={handleScanComplete}
                   imageSrc={photoBase64}
                 />
+                <FaceDetection
+                  imageSrc={photoBase64}
+                  isVisible={showFaceDetection}
+                  onFacesDetected={handleFacesDetected}
+                />
               </div>
-              <FaceDetection
-                imageSrc={photoBase64}
-                isVisible={showFaceDetection}
-                onFacesDetected={handleFacesDetected}
-              />
             </div>
           </motion.div>
 
