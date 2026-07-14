@@ -267,6 +267,7 @@ export default function Home() {
                 selectedTemplate={selectedTemplate}
                 onUploadStyle={handleStyleSelected}
                 styleImage={styleBase64}
+                hasPhoto={!!photoBase64}
               />
             </div>
           </motion.div>

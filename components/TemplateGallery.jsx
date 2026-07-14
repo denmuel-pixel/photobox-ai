@@ -5,7 +5,7 @@ import { gsap } from "gsap";
 import { TEMPLATES } from "@/lib/templates";
 import ImageUploader from "@/components/ImageUploader";
 
-export default function TemplateGallery({ onSelectTemplate, selectedTemplate, onUploadStyle, styleImage }) {
+export default function TemplateGallery({ onSelectTemplate, selectedTemplate, onUploadStyle, styleImage, hasPhoto = false }) {
   const [hoveredId, setHoveredId] = useState(null);
   const [ready, setReady] = useState(false);
   const showStyleUpload = selectedTemplate?.id === "upload-style";
@@ -81,9 +81,9 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplate, on
               selectedTemplate?.id === template.id
                 ? "border-primary ring-2 ring-primary/30"
                 : "border-border hover:border-primary/50"
-            } ${ready ? "opacity-100" : ""}`}
-            onClick={() => onSelectTemplate(template)}
-            onMouseEnter={() => setHoveredId(template.id)}
+            } ${ready ? "opacity-100" : ""} ${!hasPhoto ? "cursor-not-allowed opacity-40 grayscale pointer-events-none" : "cursor-pointer"}`}
+            onClick={() => hasPhoto && onSelectTemplate(template)}
+            onMouseEnter={() => hasPhoto && setHoveredId(template.id)}
             onMouseLeave={() => setHoveredId(null)}
             style={{ opacity: ready ? 1 : 0 }}
           >
@@ -118,6 +118,10 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplate, on
           </button>
         ))}
       </div>
+
+      {!hasPhoto && (
+        <p className="text-[11px] text-muted/60 text-center mt-1">📸 Upload foto terlebih dahulu untuk memilih gaya</p>
+      )}
 
       {showStyleUpload && (
         <div className="space-y-2">
