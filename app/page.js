@@ -90,13 +90,15 @@ export default function Home() {
     try {
       let prompt, strength, mode;
 
+      const faceCount = faceData?.count || 1;
+
       if (selectedTemplate?.id === "upload-style") {
         mode = "style-reference";
         prompt = selectedTemplate.prompts[0];
         strength = selectedTemplate.strength;
       } else {
         mode = "template";
-        prompt = getRandomPrompt(selectedTemplate.id);
+        prompt = getRandomPrompt(selectedTemplate.id, faceCount);
         strength = selectedTemplate.strength;
       }
 
