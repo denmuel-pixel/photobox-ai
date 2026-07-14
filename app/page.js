@@ -399,7 +399,7 @@ export default function Home() {
             <h3 className="text-center text-lg font-semibold mb-6">
               Masih kurang puas? Coba gaya lain...
             </h3>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 justify-center max-w-lg mx-auto">
+            <div className="flex flex-wrap justify-center gap-3 max-w-lg mx-auto">
               {TEMPLATES.filter((t) => t.id !== selectedTemplate?.id)
                 .slice(0, 7)
                 .map((t) => (
@@ -410,7 +410,7 @@ export default function Home() {
                       setResultUrl(null);
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className="flex flex-col items-center gap-1 p-2 rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-card-hover transition-all"
+                    className="flex flex-col items-center gap-1 p-2 w-[68px] rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-card-hover transition-all"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     title={t.name}
