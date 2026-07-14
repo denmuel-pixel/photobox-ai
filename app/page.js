@@ -107,7 +107,6 @@ export default function Home() {
           image: photoBase64,
           prompt,
           strength,
-          styleImage: styleBase64,
           mode,
         }),
       });
