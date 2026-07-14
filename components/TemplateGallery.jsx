@@ -81,7 +81,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplate, on
               selectedTemplate?.id === template.id
                 ? "border-primary ring-2 ring-primary/30"
                 : "border-border hover:border-primary/50"
-            } ${ready ? "opacity-100" : ""} ${!hasPhoto ? "cursor-not-allowed opacity-40 grayscale pointer-events-none" : "cursor-pointer"}`}
+            } ${ready ? "opacity-100" : ""} ${!hasPhoto ? "cursor-not-allowed opacity-60 pointer-events-none" : "cursor-pointer"}`}
             onClick={() => hasPhoto && onSelectTemplate(template)}
             onMouseEnter={() => hasPhoto && setHoveredId(template.id)}
             onMouseLeave={() => setHoveredId(null)}
