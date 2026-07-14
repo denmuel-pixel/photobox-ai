@@ -9,6 +9,7 @@ import HeroExample from "@/components/HeroExample";
 import ScanAnimation from "@/components/ScanAnimation";
 import FaceDetection from "@/components/FaceDetection";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import CropAdjust from "@/components/CropAdjust";
 import { STATS } from "@/lib/examples";
 import { TEMPLATES, getRandomPrompt } from "@/lib/templates";
 
@@ -22,21 +23,45 @@ export default function Home() {
   const [showScan, setShowScan] = useState(false);
   const [showFaceDetection, setShowFaceDetection] = useState(false);
   const [faceData, setFaceData] = useState(null);
+  const [showCrop, setShowCrop] = useState(false);
+  const [rawPhotoBase64, setRawPhotoBase64] = useState(null);
   const [showShareToast, setShowShareToast] = useState(false);
   const uploadSectionRef = useRef(null);
 
   const handlePhotoSelected = useCallback((base64) => {
-    setPhotoBase64(base64);
     setResultUrl(null);
     setError(null);
     setFaceData(null);
     if (base64) {
-      setShowScan(true);
+      // Simpan foto original dulu, lalu tampilkan crop tool
+      setRawPhotoBase64(base64);
+      setShowCrop(true);
+      setShowScan(false);
       setShowFaceDetection(false);
+      setPhotoBase64(null);
     } else {
+      setRawPhotoBase64(null);
+      setPhotoBase64(null);
+      setShowCrop(false);
       setShowScan(false);
       setShowFaceDetection(false);
     }
+  }, []);
+
+  const handleCropComplete = useCallback((croppedBase64) => {
+    setShowCrop(false);
+    setRawPhotoBase64(null);
+    setPhotoBase64(croppedBase64);
+    // Setelah crop, lanjut ke scan & face detection
+    setShowScan(true);
+    setShowFaceDetection(false);
+  }, []);
+
+  const handleCropCancel = useCallback(() => {
+    setShowCrop(false);
+    setRawPhotoBase64(null);
+    // Kembali ke kondisi awal biar user upload ulang
+    setPhotoBase64(null);
   }, []);
 
   const handleScanComplete = useCallback(() => {
@@ -253,6 +278,12 @@ export default function Home() {
                   imageSrc={photoBase64}
                   isVisible={showFaceDetection}
                   onFacesDetected={handleFacesDetected}
+                />
+                <CropAdjust
+                  imageSrc={rawPhotoBase64}
+                  isVisible={showCrop}
+                  onCropComplete={handleCropComplete}
+                  onCancel={handleCropCancel}
                 />
               </div>
             </div>

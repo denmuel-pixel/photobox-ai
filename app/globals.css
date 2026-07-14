@@ -76,3 +76,54 @@ body {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ========== react-easy-crop overrides ========== */
+.cropper-container {
+  border-radius: 0 !important;
+}
+.cropper-crop-area {
+  border: 2px solid #8b5cf6 !important;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6) !important;
+}
+.cropper-crop-area::after {
+  content: "" !important;
+  border: none !important;
+}
+
+/* Range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #2a2a3e;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  margin-top: -5px;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+}
+input[type="range"]:focus {
+  outline: none;
+}
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #2a2a3e;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  cursor: pointer;
+  border: none;
+}
