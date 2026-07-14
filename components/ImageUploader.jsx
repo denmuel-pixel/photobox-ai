@@ -2,24 +2,24 @@
 
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import imageCompression from "browser-image-compression";
 
 export default function ImageUploader({ onImageSelected, label, icon = "📸" }) {
   const [preview, setPreview] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [compressing, setCompressing] = useState(false);
   const inputRef = useRef(null);
 
   const handleFile = useCallback(
-    (file) => {
+    async (file) => {
       if (!file) return;
 
-      // Validasi tipe file
       if (!file.type.startsWith("image/")) {
         alert("Harap upload file gambar (JPG, PNG, WebP)");
         return;
       }
 
-      // Validasi ukuran (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         alert("Ukuran file maksimal 10MB");
         return;
@@ -27,13 +27,34 @@ export default function ImageUploader({ onImageSelected, label, icon = "📸" })
 
       setFileName(file.name);
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target.result;
-        setPreview(result);
-        onImageSelected(result, file);
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Kompres gambar ke max 1MB atau 1024px
+        setCompressing(true);
+        const compressed = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1200,
+          useWebWorker: true,
+        });
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target.result;
+          setPreview(result);
+          setCompressing(false);
+          onImageSelected(result, compressed);
+        };
+        reader.readAsDataURL(compressed);
+      } catch (err) {
+        console.error("Compression error:", err);
+        setCompressing(false);
+        // Fallback: kirim tanpa kompresi
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setPreview(e.target.result);
+          onImageSelected(e.target.result, file);
+        };
+        reader.readAsDataURL(file);
+      }
     },
     [onImageSelected]
   );
@@ -118,7 +139,13 @@ export default function ImageUploader({ onImageSelected, label, icon = "📸" })
               >
                 ✕
               </button>
-              {fileName && (
+              {compressing && (
+                <p className="text-xs text-primary mt-2 text-center flex items-center justify-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  Mengompres gambar...
+                </p>
+              )}
+              {fileName && !compressing && (
                 <p className="text-xs text-muted mt-2 text-center truncate">
                   {fileName}
                 </p>
