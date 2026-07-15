@@ -25,6 +25,7 @@ export default function Home() {
   const [faceData, setFaceData] = useState(null);
   const [showCrop, setShowCrop] = useState(false);
   const [rawPhotoBase64, setRawPhotoBase64] = useState(null);
+  const [cropKey, setCropKey] = useState(0);
   const [uploadKey, setUploadKey] = useState(0);
   const [showShareToast, setShowShareToast] = useState(false);
   const uploadSectionRef = useRef(null);
@@ -36,6 +37,7 @@ export default function Home() {
     if (base64) {
       // Simpan foto original dulu, lalu tampilkan crop tool
       setRawPhotoBase64(base64);
+      setCropKey((k) => k + 1); // force remount CropAdjust
       setShowCrop(true);
       setShowScan(false);
       setShowFaceDetection(false);
@@ -286,6 +288,7 @@ export default function Home() {
                   onFacesDetected={handleFacesDetected}
                 />
                 <CropAdjust
+                  key={cropKey}
                   imageSrc={rawPhotoBase64}
                   isVisible={showCrop}
                   onCropComplete={handleCropComplete}
