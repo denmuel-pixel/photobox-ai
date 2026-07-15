@@ -10,6 +10,7 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [aspect, setAspect] = useState(undefined); // default bebas
   const [isProcessing, setIsProcessing] = useState(false);
 
   const onCropChange = useCallback((location) => {
@@ -115,7 +116,7 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
             crop={crop}
             zoom={zoom}
             rotation={rotation}
-            aspect={undefined}
+            aspect={aspect}
             onCropChange={onCropChange}
             onZoomChange={onZoomChange}
             onRotationChange={onRotationChange}
@@ -132,6 +133,32 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
 
         {/* Controls */}
         <div className="px-5 py-4 space-y-4">
+          {/* Aspect Ratio */}
+          <div>
+            <p className="text-xs text-muted mb-2">Ukuran Crop</p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "🗂 1:1 (Kotak)", value: 1 / 1 },
+                { label: "📱 9:16 (Potrait)", value: 9 / 16 },
+                { label: "🖥 16:9 (Landscape)", value: 16 / 9 },
+                { label: "📷 3:4 (Foto)", value: 3 / 4 },
+                { label: "🆓 Bebas", value: undefined },
+              ].map((opt) => (
+                <button
+                  key={opt.label}
+                  onClick={() => setAspect(opt.value)}
+                  className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
+                    aspect === opt.value
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted hover:border-primary/50"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Zoom */}
           <div>
             <div className="flex items-center justify-between mb-1">
