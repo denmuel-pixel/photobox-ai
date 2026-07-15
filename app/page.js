@@ -199,7 +199,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <LoadingOverlay isVisible={isLoading} />
+      <LoadingOverlay
+        isVisible={isLoading}
+        photoSrc={photoBase64}
+        templateId={selectedTemplate?.id}
+      />
 
       {/* Share Toast */}
       <AnimatePresence>
