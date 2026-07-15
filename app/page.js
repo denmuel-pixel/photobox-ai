@@ -31,7 +31,7 @@ export default function Home() {
   const [showShareToast, setShowShareToast] = useState(false);
   const uploadSectionRef = useRef(null);
   const generateRef = useRef(null);
-  const { playClick, playScan, stopScan, playSparks } = useSound();
+  const { playClick, playScan, stopScan, playSparks, playDone } = useSound();
 
   const handlePhotoSelected = useCallback((base64) => {
     setResultUrl(null);
@@ -151,6 +151,7 @@ export default function Home() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Gagal memproses gambar");
+      playDone();
       setResultUrl(data.resultUrl);
     } catch (err) {
       setError(err.message);
