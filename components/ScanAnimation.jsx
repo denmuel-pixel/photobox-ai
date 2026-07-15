@@ -32,8 +32,6 @@ export default function ScanAnimation({ isVisible, onComplete, imageSrc, onPlay,
     }
 
     let timeout;
-
-    let timeout;
     let step = 0;
 
     const runStep = () => {
