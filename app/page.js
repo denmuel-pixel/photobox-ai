@@ -30,6 +30,7 @@ export default function Home() {
   const [uploadKey, setUploadKey] = useState(0);
   const [showShareToast, setShowShareToast] = useState(false);
   const uploadSectionRef = useRef(null);
+  const generateRef = useRef(null);
   const { playClick, playScan, stopScan, playSparks } = useSound();
 
   const handlePhotoSelected = useCallback((base64) => {
@@ -91,7 +92,7 @@ export default function Home() {
     setResultUrl(null);
     setError(null);
     setTimeout(() => {
-      uploadSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      generateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);
   }, [playClick]);
 
@@ -333,6 +334,7 @@ export default function Home() {
 
         {/* Generate Button */}
         <motion.div
+          ref={generateRef}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
