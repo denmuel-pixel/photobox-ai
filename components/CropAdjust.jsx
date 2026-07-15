@@ -38,11 +38,15 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
   ];
 
   const createCroppedImage = useCallback(async () => {
-    if (!croppedAreaPixels) return;
-
     setIsProcessing(true);
 
     try {
+      // Jika crop area belum siap, gunakan gambar asli tanpa crop
+      if (!croppedAreaPixels) {
+        onCropComplete(imageSrc);
+        return;
+      }
+
       const image = new Image();
       image.crossOrigin = "anonymous";
 
@@ -61,20 +65,29 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
 
       // Apply rotation if any
       if (rotation !== 0) {
-        canvas.width = height;
-        canvas.height = width;
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate((rotation * Math.PI) / 180);
-        ctx.drawImage(image, -image.width / 2, -image.height / 2);
+        // Rotasi: width/height swap
+        const rad = (rotation * Math.PI) / 180;
+        const cos = Math.abs(Math.cos(rad));
+        const sin = Math.abs(Math.sin(rad));
+        const w = Math.floor(width * cos + height * sin);
+        const h = Math.floor(width * sin + height * cos);
+        canvas.width = w;
+        canvas.height = h;
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(rad);
+        ctx.drawImage(image, -width / 2, -height / 2, width, height);
       } else {
         ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
       }
 
       const croppedBase64 = canvas.toDataURL("image/jpeg", 0.95);
+      setIsProcessing(false);
       onCropComplete(croppedBase64);
     } catch (err) {
       console.error("Crop error:", err);
       setIsProcessing(false);
+      // Fallback: kirim gambar asli
+      onCropComplete(imageSrc);
     }
   }, [croppedAreaPixels, imageSrc, rotation, onCropComplete]);
 
@@ -192,9 +205,9 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
             </button>
             <button
               onClick={createCroppedImage}
-              disabled={isProcessing || !croppedAreaPixels}
+              disabled={isProcessing}
               className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                isProcessing || !croppedAreaPixels
+                isProcessing
                   ? "bg-border text-muted cursor-not-allowed"
                   : "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40"
               }`}
