@@ -101,10 +101,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplate, on
               </div>
             </div>
             <div className="p-2.5 text-left">
-              <div className="flex items-start justify-between gap-1">
-                <p className="text-sm font-medium text-foreground leading-tight line-clamp-2">{template.name}</p>
-                {template.isTrending && <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded whitespace-nowrap mt-0.5">🔥 Tren</span>}
-              </div>
+              <p className="text-sm font-medium text-foreground leading-tight line-clamp-2 mb-1">{template.name}</p>
               <div className="flex items-center justify-between mt-1">
                 <p className="text-[10px] text-muted truncate">{template.description}</p>
                 <span className="text-[9px] text-muted/60 ml-1 flex-shrink-0">
