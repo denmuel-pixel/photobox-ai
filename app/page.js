@@ -31,7 +31,8 @@ export default function Home() {
   const [showShareToast, setShowShareToast] = useState(false);
   const uploadSectionRef = useRef(null);
   const generateRef = useRef(null);
-  const { playClick, playScan, stopScan, playSparks, playDone } = useSound();
+  const { playClick, playScan, stopScan, playSparks } = useSound();
+  const doneAudioRef = useRef(null);
 
   const handlePhotoSelected = useCallback((base64) => {
     setResultUrl(null);
@@ -117,6 +118,10 @@ export default function Home() {
 
     playClick();
     playSparks();
+    // Buat Audio sekarang (masih dalam user gesture) biar nanti bisa diputer
+    const doneAudio = new Audio("/sounds/done.mp3");
+    doneAudio.volume = 0.5;
+    doneAudio.play().catch(() => {}); // priming — biar browser approve source
     setIsLoading(true);
     setError(null);
     setResultUrl(null);
@@ -151,7 +156,7 @@ export default function Home() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Gagal memproses gambar");
-      playDone();
+      doneAudio.play().catch(() => {}); // play done sound
       setResultUrl(data.resultUrl);
     } catch (err) {
       setError(err.message);
