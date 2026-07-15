@@ -139,7 +139,7 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
             <div className="flex flex-wrap gap-2">
               {[
                 { label: "🗂 1:1 (Kotak)", value: 1 / 1 },
-                { label: "📱 9:16 (Potrait)", value: 9 / 16 },
+                { label: "📱 9:16 (Portrait)", value: 9 / 16 },
                 { label: "🖥 16:9 (Landscape)", value: 16 / 9 },
                 { label: "📷 3:4 (Foto)", value: 3 / 4 },
                 { label: "🆓 Bebas", value: undefined },
