@@ -135,6 +135,7 @@ export default function Home() {
           prompt,
           strength,
           mode,
+          styleImage: mode === "style-reference" ? styleBase64 : undefined,
         }),
       });
 

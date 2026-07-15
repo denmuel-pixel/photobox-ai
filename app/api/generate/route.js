@@ -9,7 +9,7 @@ fal.config({
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { image, prompt, strength, mode } = body;
+    const { image, prompt, strength, mode, styleImage } = body;
 
     if (!image) {
       return Response.json(
@@ -23,7 +23,7 @@ export async function POST(request) {
     if (mode === "style-reference") {
       resultUrl = await generateWithStyleReference(
         image,
-        null, // styleImage tidak lagi dikirim via API (Seedream hanya support 1 image_url)
+        styleImage || null,
         prompt || "Transform this portrait with a beautiful artistic style, vibrant colors, and creative aesthetic",
         strength || 0.85
       );
