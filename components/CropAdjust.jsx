@@ -115,7 +115,7 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
             crop={crop}
             zoom={zoom}
             rotation={rotation}
-            aspect={1 / 1}
+            aspect={undefined}
             onCropChange={onCropChange}
             onZoomChange={onZoomChange}
             onRotationChange={onRotationChange}
