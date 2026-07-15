@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const TEMPLATE_COLORS = {
   enhance: { primary: "#06b6d4", secondary: "#22d3ee", label: "Enhance Photo" },
@@ -42,6 +42,15 @@ export default function LoadingOverlay({
 
   const colors = TEMPLATE_COLORS[templateId] || TEMPLATE_COLORS.enhance;
   const templateLabel = colors.label;
+
+  // Play sparks sound when loading starts
+  useEffect(() => {
+    if (isVisible) {
+      const audio = new Audio("/sounds/sparks.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
+    }
+  }, [isVisible]);
 
   // Reset & animate progress
   useEffect(() => {

@@ -10,16 +10,28 @@ const scanSteps = [
   { id: "ready", label: "Siap digenerate!", duration: 500 },
 ];
 
-export default function ScanAnimation({ isVisible, onComplete, imageSrc }) {
+export default function ScanAnimation({ isVisible, onComplete, imageSrc, onPlay, onStop }) {
   const [currentStep, setCurrentStep] = useState(-1);
   const [completed, setCompleted] = useState(false);
   const scanLineRef = useRef(null);
+  const playedRef = useRef(false);
 
   useEffect(() => {
     if (!isVisible) {
       setCurrentStep(-1);
+      setCompleted(false);
+      playedRef.current = false;
+      onStop?.();
       return;
     }
+
+    // Play scan sound
+    if (!playedRef.current) {
+      playedRef.current = true;
+      onPlay?.();
+    }
+
+    let timeout;
 
     let timeout;
     let step = 0;
@@ -33,6 +45,7 @@ export default function ScanAnimation({ isVisible, onComplete, imageSrc }) {
         }, scanSteps[step].duration);
       } else {
         setCompleted(true);
+        onStop?.();
         onComplete?.();
       }
     };

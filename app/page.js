@@ -10,6 +10,7 @@ import ScanAnimation from "@/components/ScanAnimation";
 import FaceDetection from "@/components/FaceDetection";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import CropAdjust from "@/components/CropAdjust";
+import { useSound } from "@/lib/useSound";
 import { STATS } from "@/lib/examples";
 import { TEMPLATES, getRandomPrompt } from "@/lib/templates";
 
@@ -29,6 +30,7 @@ export default function Home() {
   const [uploadKey, setUploadKey] = useState(0);
   const [showShareToast, setShowShareToast] = useState(false);
   const uploadSectionRef = useRef(null);
+  const { playClick, playScan, stopScan, playSparks } = useSound();
 
   const handlePhotoSelected = useCallback((base64) => {
     setResultUrl(null);
@@ -83,19 +85,20 @@ export default function Home() {
   }, []);
 
   const handleSelectTemplate = useCallback((template) => {
+    playClick();
     setSelectedTemplate(template);
     setStyleBase64(null);
     setResultUrl(null);
     setError(null);
-    // Scroll ke upload section
     setTimeout(() => {
       uploadSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
-  }, []);
+  }, [playClick]);
 
   const handleTryNow = useCallback(() => {
+    playClick();
     uploadSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+  }, [playClick]);
 
   const handleGenerate = async () => {
     if (!photoBase64) {
@@ -111,6 +114,8 @@ export default function Home() {
       return;
     }
 
+    playClick();
+    playSparks();
     setIsLoading(true);
     setError(null);
     setResultUrl(null);
@@ -130,6 +135,7 @@ export default function Home() {
         strength = selectedTemplate.strength;
       }
 
+      stopScan();
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,6 +159,7 @@ export default function Home() {
   };
 
   const handleDownload = async () => {
+    playClick();
     if (!resultUrl) return;
     try {
       const res = await fetch(resultUrl);
@@ -171,6 +178,7 @@ export default function Home() {
   };
 
   const handleShare = async () => {
+    playClick();
     if (!resultUrl) return;
     try {
       await navigator.clipboard.writeText(resultUrl);
@@ -182,6 +190,8 @@ export default function Home() {
   };
 
   const handleReset = () => {
+    playClick();
+    stopScan();
     setPhotoBase64(null);
     setRawPhotoBase64(null);
     setStyleBase64(null);
@@ -285,6 +295,8 @@ export default function Home() {
                   isVisible={showScan}
                   onComplete={handleScanComplete}
                   imageSrc={photoBase64}
+                  onPlay={playScan}
+                  onStop={stopScan}
                 />
                 <FaceDetection
                   imageSrc={photoBase64}
