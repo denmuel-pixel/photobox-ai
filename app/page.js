@@ -25,6 +25,7 @@ export default function Home() {
   const [faceData, setFaceData] = useState(null);
   const [showCrop, setShowCrop] = useState(false);
   const [rawPhotoBase64, setRawPhotoBase64] = useState(null);
+  const [uploadKey, setUploadKey] = useState(0);
   const [showShareToast, setShowShareToast] = useState(false);
   const uploadSectionRef = useRef(null);
 
@@ -180,11 +181,14 @@ export default function Home() {
 
   const handleReset = () => {
     setPhotoBase64(null);
+    setRawPhotoBase64(null);
     setStyleBase64(null);
     setSelectedTemplate(null);
     setResultUrl(null);
     setError(null);
     setShowScan(false);
+    setShowCrop(false);
+    setUploadKey((k) => k + 1);
   };
 
   const isReady = selectedTemplate && (
@@ -266,6 +270,7 @@ export default function Home() {
             <div className="bg-card border border-border rounded-2xl p-5">
               <div className="relative">
                 <ImageUploader
+                  key={uploadKey}
                   label="📸 Upload Foto Kamu"
                   icon="📸"
                   onImageSelected={handlePhotoSelected}
