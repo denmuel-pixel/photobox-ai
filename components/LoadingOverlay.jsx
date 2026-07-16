@@ -73,14 +73,11 @@ export default function LoadingOverlay({
   }, [isVisible]);
 
   // Track phase changes for text animation
-  const phaseText = currentPhase.text;
-  useEffect(() => {
-    setPhaseKey((k) => k + 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phaseText]);
-
   const currentPhase = getPhase(progress);
   const statusText = getStatusText(progress, templateLabel);
+  useEffect(() => {
+    setPhaseKey((k) => k + 1);
+  }, [currentPhase.range[0]]);
 
   if (!isVisible) return null;
 
