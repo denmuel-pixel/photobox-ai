@@ -42,7 +42,8 @@ export async function POST(request) {
 
       const entry = {
         code,
-        used: false,
+        uses: 0,
+        maxUses: 5,
         createdAt: new Date().toISOString(),
         usedAt: null,
       };

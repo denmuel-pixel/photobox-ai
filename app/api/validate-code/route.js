@@ -22,19 +22,28 @@ export async function POST(request) {
       );
     }
 
-    if (found.used) {
+    const maxUses = found.maxUses || 1;
+    const uses = found.uses || 0;
+
+    if (uses >= maxUses) {
       return Response.json(
-        { valid: false, error: "Kode otorisasi sudah pernah digunakan" },
+        { valid: false, error: "Kode otorisasi sudah habis (" + uses + "/" + maxUses + ")" },
         { status: 400 }
       );
     }
 
-    // Tandai kode sebagai sudah dipakai
-    found.used = true;
+    // Tambah pemakaian
+    found.uses = uses + 1;
     found.usedAt = new Date().toISOString();
     await writeCodes(codes);
 
-    return Response.json({ valid: true });
+    const remaining = maxUses - found.uses;
+    return Response.json({
+      valid: true,
+      remaining,
+      maxUses,
+      message: "Kode valid! Sisa: " + remaining + "/" + maxUses + " penggunaan",
+    });
   } catch (error) {
     console.error("Validate code error:", error);
     return Response.json(

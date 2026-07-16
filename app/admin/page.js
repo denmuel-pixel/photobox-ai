@@ -74,8 +74,9 @@ export default function AdminPage() {
   };
 
   const statTotal = codes.length;
-  const statUsed = codes.filter((c) => c.used).length;
+  const statUsed = codes.filter((c) => (c.uses || 0) >= (c.maxUses || 1)).length;
   const statAvailable = statTotal - statUsed;
+  const totalUses = codes.reduce((sum, c) => sum + (c.uses || 0), 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -109,8 +110,8 @@ export default function AdminPage() {
             <div className="text-xs text-muted mt-1">Tersedia</div>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-error">{statUsed}</div>
-            <div className="text-xs text-muted mt-1">Terpakai</div>
+            <div className="text-2xl font-bold text-secondary">{totalUses}</div>
+            <div className="text-xs text-muted mt-1">Total Pakai</div>
           </div>
         </div>
 
@@ -118,7 +119,7 @@ export default function AdminPage() {
         <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 mb-8">
           <h2 className="text-lg font-bold mb-1">Generate Kode Otorisasi</h2>
           <p className="text-sm text-muted mb-4">
-            Buat kode baru yang bisa diberikan ke pengguna. 1 kode hanya bisa dipakai 1 kali.
+            Buat kode baru yang bisa diberikan ke pengguna. 1 kode bisa dipakai 5 kali.
           </p>
 
           <div className="flex items-end gap-3">
@@ -210,7 +211,7 @@ export default function AdminPage() {
         <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
           <h2 className="text-lg font-bold mb-1">Riwayat Kode</h2>
           <p className="text-sm text-muted mb-4">
-            Semua kode yang pernah dibuat. Kode yang sudah terpakai tidak bisa digunakan lagi.
+            Semua kode yang pernah dibuat. Setiap kode bisa dipakai hingga 5 kali.
           </p>
 
           {loading ? (
@@ -229,8 +230,9 @@ export default function AdminPage() {
                   <tr className="border-b border-border">
                     <th className="text-left py-2 pr-4 text-muted font-medium">Kode</th>
                     <th className="text-left py-2 pr-4 text-muted font-medium">Status</th>
+                    <th className="text-left py-2 pr-4 text-muted font-medium">Pemakaian</th>
                     <th className="text-left py-2 pr-4 text-muted font-medium">Dibuat</th>
-                    <th className="text-left py-2 text-muted font-medium">Dipakai</th>
+                    <th className="text-left py-2 text-muted font-medium">Terakhir</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -242,15 +244,34 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td className="py-2.5 pr-4">
-                        {item.used ? (
+                        {(item.uses || 0) >= (item.maxUses || 1) ? (
                           <span className="text-xs text-error bg-error/10 px-2 py-0.5 rounded-full">
-                            Terpakai
+                            Habis
                           </span>
                         ) : (
                           <span className="text-xs text-success bg-success/10 px-2 py-0.5 rounded-full">
-                            Tersedia
+                            Aktif
                           </span>
                         )}
+                      </td>
+                      <td className="py-2.5 pr-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-0.5">
+                            {Array.from({ length: item.maxUses || 1 }, (_, i) => (
+                              <span
+                                key={i}
+                                className={`w-2 h-2 rounded-full ${
+                                  i < ((item.uses || 0) >= (item.maxUses || 1) ? 0 : (item.maxUses || 1) - (item.uses || 0))
+                                    ? "bg-success"
+                                    : "bg-border"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted">
+                            {(item.uses || 0)}/{item.maxUses || 1}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-2.5 pr-4 text-muted text-xs">
                         {new Date(item.createdAt).toLocaleString("id-ID")}

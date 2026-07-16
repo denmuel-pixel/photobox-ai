@@ -1,19 +1,22 @@
 [
   {
     "code": "6WCE-72H9",
-    "used": false,
+    "uses": 0,
+    "maxUses": 5,
     "createdAt": "2026-07-16T05:01:27.668Z",
     "usedAt": null
   },
   {
     "code": "LZLM-HSJV",
-    "used": false,
+    "uses": 0,
+    "maxUses": 5,
     "createdAt": "2026-07-16T05:01:27.668Z",
     "usedAt": null
   },
   {
     "code": "83EX-34YH",
-    "used": false,
+    "uses": 0,
+    "maxUses": 5,
     "createdAt": "2026-07-16T05:01:27.668Z",
     "usedAt": null
   }
