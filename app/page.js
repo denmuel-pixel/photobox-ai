@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImageUploader from "@/components/ImageUploader";
 import TemplateGallery from "@/components/TemplateGallery";
@@ -115,6 +115,8 @@ export default function Home() {
     uploadSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [playClick]);
 
+  const pollJobRef = useRef(null);
+
   const handleGenerate = async () => {
     if (!photoBase64) {
       setError("Upload foto terlebih dahulu");
@@ -124,7 +126,6 @@ export default function Home() {
       setError("Pilih gaya AI terlebih dahulu");
       return;
     }
-    // Cek otorisasi (pakai ref biar bisa dibaca synchronous)
     if (!isAuthorizedRef.current) {
       setShowAuthModal(true);
       return;
@@ -132,48 +133,93 @@ export default function Home() {
 
     playClick();
     playSparks();
-    // Buat Audio sekarang (masih dalam user gesture) biar nanti bisa diputer
     const doneAudio = new Audio("/sounds/done.mp3");
     doneAudio.volume = 0.5;
-    doneAudio.play().catch(() => {}); // priming — biar browser approve source
+    doneAudio.play().catch(() => {});
     setIsLoading(true);
     setError(null);
     setResultUrl(null);
     setResultMessage(null);
 
+    const faceCount = faceData?.count || 1;
+    const name = selectedTemplate.id === "pixar" ? pixarName : "";
+    const prompt = getRandomPrompt(selectedTemplate.id, faceCount, name);
+    const strength = selectedTemplate.strength;
+
+    stopScan();
+
     try {
-      let prompt, strength;
-
-      const faceCount = faceData?.count || 1;
-
-      const name = selectedTemplate.id === "pixar" ? pixarName : "";
-      prompt = getRandomPrompt(selectedTemplate.id, faceCount, name);
-      strength = selectedTemplate.strength;
-
-      stopScan();
-      const response = await fetch("/api/generate", {
+      // === STEP 1: Submit job ===
+      const submitRes = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           image: photoBase64,
           prompt,
           strength,
-          mode: "template",
           templateId: selectedTemplate?.id || null,
         }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Gagal memproses gambar");
-      if (!data?.resultUrl || typeof data.resultUrl !== "string") {
-        throw new Error("URL hasil generate tidak valid");
+      let submitData;
+      const ct = submitRes.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        submitData = await submitRes.json();
+      } else {
+        const text = await submitRes.text();
+        throw new Error(
+          text.startsWith("An error")
+            ? "Server error. Coba lagi."
+            : `Server error: ${text.slice(0, 200)}`
+        );
       }
-      doneAudio.play().catch(() => {}); // play done sound
-      setResultUrl(data.resultUrl);
-      setResultMessage(data.fallback ? data.message : null);
+
+      if (!submitRes.ok) throw new Error(submitData.error || "Gagal submit");
+
+      // Fallback → langsung tampilkan
+      if (submitData.resultUrl) {
+        doneAudio.play().catch(() => {});
+        setResultUrl(submitData.resultUrl);
+        setResultMessage(submitData.fallback ? submitData.message : null);
+        setIsLoading(false);
+        return;
+      }
+
+      const requestId = submitData.requestId;
+      if (!requestId) throw new Error("Tidak mendapat ID job dari server");
+
+      // === STEP 2: Poll status ===
+      const poll = async () => {
+        const statusRes = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requestId }),
+        });
+        const statusData = await statusRes.json();
+        if (!statusRes.ok) throw new Error(statusData.error || "Gagal cek status");
+
+        if (statusData.status === "COMPLETED") {
+          // === STEP 3: Ambil hasil ===
+          const resultRes = await fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ requestId, fetchResult: true }),
+          });
+          const resultData = await resultRes.json();
+          if (!resultRes.ok) throw new Error(resultData.error || "Gagal ambil hasil");
+
+          doneAudio.play().catch(() => {});
+          setResultUrl(resultData.resultUrl);
+          setIsLoading(false);
+        } else {
+          // Lanjut poll 2 detik lagi
+          pollJobRef.current = setTimeout(poll, 2000);
+        }
+      };
+
+      pollJobRef.current = setTimeout(poll, 1000);
     } catch (err) {
       setError(err.message);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -225,7 +271,13 @@ export default function Home() {
     }
   };
 
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => clearTimeout(pollJobRef.current);
+  }, []);
+
   const handleReset = () => {
+    clearTimeout(pollJobRef.current);
     playClick();
     stopScan();
     setPhotoBase64(null);
