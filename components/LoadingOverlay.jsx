@@ -59,8 +59,8 @@ export default function LoadingOverlay({
       return;
     }
     setProgress(0);
-    const duration = 22000;
-    const interval = 80;
+    const duration = 12000;
+    const interval = 60;
     const step = 100 / (duration / interval);
     const timer = setInterval(() => {
       setProgress((prev) => {

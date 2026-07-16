@@ -182,8 +182,9 @@ export default function Home() {
     playClick();
     if (!resultUrl) return;
     try {
-      // Ambil gambar, konversi ke JPEG via canvas
-      const res = await fetch(resultUrl);
+      // Ambil gambar via proxy biar aman dari CORS di mobile
+      const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(resultUrl)}`;
+      const res = await fetch(proxyUrl);
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
 

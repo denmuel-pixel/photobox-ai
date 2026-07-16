@@ -7,10 +7,16 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
   const [sliderPos, setSliderPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const [afterImageError, setAfterImageError] = useState(false);
+  const [useAfterProxy, setUseAfterProxy] = useState(false);
   const [beforeImageError, setBeforeImageError] = useState(false);
   const containerRef = useRef(null);
   const afterRef = useRef(null);
   const beforeRef = useRef(null);
+
+  const getProxyUrl = useCallback((url) => {
+    if (!url || url.startsWith("data:") || url.startsWith("/")) return url;
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  }, []);
 
   const handleImageLoad = useCallback(() => {
     // Trigger re-render after images load
@@ -18,6 +24,7 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
 
   useEffect(() => {
     setAfterImageError(false);
+    setUseAfterProxy(false);
     setBeforeImageError(false);
   }, [beforeImage, afterImage]);
 
@@ -107,13 +114,19 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
           ) : (
             <img
               ref={afterRef}
-              src={afterImage}
+              src={useAfterProxy ? getProxyUrl(afterImage) : afterImage}
               alt={afterLabel}
               className="w-full h-auto block"
               draggable={false}
-              crossOrigin="anonymous"
+              crossOrigin={useAfterProxy ? undefined : "anonymous"}
               onLoad={handleImageLoad}
-              onError={() => setAfterImageError(true)}
+              onError={() => {
+                if (!useAfterProxy) {
+                  setUseAfterProxy(true);
+                } else {
+                  setAfterImageError(true);
+                }
+              }}
             />
           )}
 
