@@ -31,6 +31,7 @@ export default function Home() {
   const [uploadKey, setUploadKey] = useState(0);
   const [showShareToast, setShowShareToast] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const isAuthorizedRef = useRef(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const uploadSectionRef = useRef(null);
   const generateRef = useRef(null);
@@ -119,8 +120,8 @@ export default function Home() {
       return;
     }
 
-    // Cek otorisasi
-    if (!isAuthorized) {
+    // Cek otorisasi (pakai ref biar bisa dibaca synchronous)
+    if (!isAuthorizedRef.current) {
       setShowAuthModal(true);
       return;
     }
@@ -220,9 +221,11 @@ export default function Home() {
   };
 
   const handleAuthorized = () => {
+    isAuthorizedRef.current = true;
     setIsAuthorized(true);
     setShowAuthModal(false);
-    // User tinggal klik tombol "LIHAT TRANSFORMASIMU" lagi untuk lanjut
+    // Langsung generate — ref sudah terupdate sebelum panggil handleGenerate
+    handleGenerate();
   };
 
   const isReady = selectedTemplate && (
