@@ -8,7 +8,7 @@ const TEMPLATE_COLORS = {
   anime: { primary: "#ec4899", secondary: "#f472b6", label: "Anime Style" },
   "fantasy-elf": { primary: "#f59e0b", secondary: "#fbbf24", label: "Princess Royal" },
   superhero: { primary: "#ef4444", secondary: "#3b82f6", label: "Superhero" },
-  space: { primary: "#8b5cf6", secondary: "#a78bfa", label: "Space Explorer" },
+  gundam: { primary: "#22c55e", secondary: "#3b82f6", label: "Gundam Pilot" },
   pixar: { primary: "#f59e0b", secondary: "#ef4444", label: "PIXAR Studio" },
 };
 
@@ -73,9 +73,11 @@ export default function LoadingOverlay({
   }, [isVisible]);
 
   // Track phase changes for text animation
+  const phaseText = currentPhase.text;
   useEffect(() => {
     setPhaseKey((k) => k + 1);
-  }, [getPhase(progress).text]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phaseText]);
 
   const currentPhase = getPhase(progress);
   const statusText = getStatusText(progress, templateLabel);
