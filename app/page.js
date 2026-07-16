@@ -11,6 +11,7 @@ import FaceDetection from "@/components/FaceDetection";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import CropAdjust from "@/components/CropAdjust";
 import AuthorizationModal from "@/components/AuthorizationModal";
+import PixarNameFormInline from "@/components/PixarNameFormInline";
 import { useSound } from "@/lib/useSound";
 import { STATS } from "@/lib/examples";
 import { TEMPLATES, getRandomPrompt } from "@/lib/templates";
@@ -31,6 +32,9 @@ export default function Home() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const isAuthorizedRef = useRef(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pixarName, setPixarName] = useState("");
+  const [showPixarNameModal, setShowPixarNameModal] = useState(false);
+  const pendingTemplateRef = useRef(null);
   const uploadSectionRef = useRef(null);
   const templateSectionRef = useRef(null);
   const generateRef = useRef(null);
@@ -89,13 +93,18 @@ export default function Home() {
 
   const handleSelectTemplate = useCallback((template) => {
     playClick();
-    setSelectedTemplate(template);
-    setStyleBase64(null);
     setResultUrl(null);
     setError(null);
-    setTimeout(() => {
-      generateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 100);
+    if (template.id === "pixar") {
+      pendingTemplateRef.current = template;
+      setShowPixarNameModal(true);
+    } else {
+      setSelectedTemplate(template);
+      setPixarName("");
+      setTimeout(() => {
+        generateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
   }, [playClick]);
 
   const handleTryNow = useCallback(() => {
@@ -133,7 +142,8 @@ export default function Home() {
 
       const faceCount = faceData?.count || 1;
 
-      prompt = getRandomPrompt(selectedTemplate.id, faceCount);
+      const name = selectedTemplate.id === "pixar" ? pixarName : "";
+      prompt = getRandomPrompt(selectedTemplate.id, faceCount, name);
       strength = selectedTemplate.strength;
 
       stopScan();
@@ -226,6 +236,15 @@ export default function Home() {
     handleGenerate();
   };
 
+  const handlePixarNameSubmit = (name) => {
+    setPixarName(name);
+    setSelectedTemplate(pendingTemplateRef.current);
+    setShowPixarNameModal(false);
+    setTimeout(() => {
+      generateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
+
   const isReady = !!selectedTemplate;
 
   return (
@@ -242,6 +261,47 @@ export default function Home() {
         onClose={() => setShowAuthModal(false)}
         onAuthorized={handleAuthorized}
       />
+
+      {/* PIXAR Name Modal */}
+      <AnimatePresence>
+        {showPixarNameModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowPixarNameModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            >
+              <div
+                className="bg-card border border-border rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl shadow-primary/10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-center mb-4">
+                  <span className="text-4xl">💡</span>
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-center mb-1">
+                  Masukkan Namamu
+                </h2>
+                <p className="text-sm text-muted text-center mb-6">
+                  Nama akan muncul di poster PIXAR Studio-mu!
+                </p>
+                <PixarNameFormInline
+                  onSubmit={handlePixarNameSubmit}
+                  onCancel={() => setShowPixarNameModal(false)}
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
