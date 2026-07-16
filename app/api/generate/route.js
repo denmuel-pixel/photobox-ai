@@ -7,6 +7,9 @@ fal.config({
   credentials: process.env.FAL_KEY || process.env.FAL_API_KEY,
 });
 
+// Tingkatkan timeout Vercel serverless (default 10s → 60s)
+export const maxDuration = 60;
+
 export async function POST(request) {
   try {
     const body = await request.json();

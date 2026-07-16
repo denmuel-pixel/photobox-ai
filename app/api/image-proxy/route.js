@@ -2,6 +2,8 @@
  * Proxy gambar untuk mengatasi CORS issue di mobile.
  * Ambil gambar dari URL eksternal dan sajikan dengan CORS header.
  */
+export const maxDuration = 30;
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
