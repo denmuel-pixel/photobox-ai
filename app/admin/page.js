@@ -191,7 +191,6 @@ export default function AdminPage() {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
 
           {/* Error Alert */}
           {adminError && (
