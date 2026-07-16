@@ -8,7 +8,7 @@ const TEMPLATE_COLORS = {
   anime: { primary: "#ec4899", secondary: "#f472b6", label: "Anime Style" },
   "fantasy-elf": { primary: "#f59e0b", secondary: "#fbbf24", label: "Princess Royal" },
   superhero: { primary: "#ef4444", secondary: "#3b82f6", label: "Superhero" },
-  gundam: { primary: "#22c55e", secondary: "#3b82f6", label: "Gundam Pilot" },
+  gundam: { primary: "#22c55e", secondary: "#3b82f6", label: "The Mecha Pilot" },
   pixar: { primary: "#f59e0b", secondary: "#ef4444", label: "PIXAR Studio" },
 };
 
