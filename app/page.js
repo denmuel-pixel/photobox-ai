@@ -17,7 +17,6 @@ import { TEMPLATES, getRandomPrompt } from "@/lib/templates";
 
 export default function Home() {
   const [photoBase64, setPhotoBase64] = useState(null);
-  const [styleBase64, setStyleBase64] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [resultUrl, setResultUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -89,12 +88,6 @@ export default function Home() {
     }, 300);
   }, []);
 
-  const handleStyleSelected = useCallback((base64) => {
-    setStyleBase64(base64);
-    setResultUrl(null);
-    setError(null);
-  }, []);
-
   const handleSelectTemplate = useCallback((template) => {
     playClick();
     setSelectedTemplate(template);
@@ -120,11 +113,6 @@ export default function Home() {
       setError("Pilih gaya AI terlebih dahulu");
       return;
     }
-    if (selectedTemplate.id === "upload-style" && !styleBase64) {
-      setError("Upload gambar referensi style terlebih dahulu");
-      return;
-    }
-
     // Cek otorisasi (pakai ref biar bisa dibaca synchronous)
     if (!isAuthorizedRef.current) {
       setShowAuthModal(true);
@@ -142,19 +130,12 @@ export default function Home() {
     setResultUrl(null);
 
     try {
-      let prompt, strength, mode;
+      let prompt, strength;
 
       const faceCount = faceData?.count || 1;
 
-      if (selectedTemplate?.id === "upload-style") {
-        mode = "style-reference";
-        prompt = selectedTemplate.prompts[0];
-        strength = selectedTemplate.strength;
-      } else {
-        mode = "template";
-        prompt = getRandomPrompt(selectedTemplate.id, faceCount);
-        strength = selectedTemplate.strength;
-      }
+      prompt = getRandomPrompt(selectedTemplate.id, faceCount);
+      strength = selectedTemplate.strength;
 
       stopScan();
       const response = await fetch("/api/generate", {
@@ -164,8 +145,7 @@ export default function Home() {
           image: photoBase64,
           prompt,
           strength,
-          mode,
-          styleImage: mode === "style-reference" ? styleBase64 : undefined,
+          mode: "template",
         }),
       });
 
@@ -216,7 +196,6 @@ export default function Home() {
     stopScan();
     setPhotoBase64(null);
     setRawPhotoBase64(null);
-    setStyleBase64(null);
     setSelectedTemplate(null);
     setResultUrl(null);
     setError(null);
@@ -233,9 +212,7 @@ export default function Home() {
     handleGenerate();
   };
 
-  const isReady = selectedTemplate && (
-    selectedTemplate.id !== "upload-style" ? true : styleBase64
-  );
+  const isReady = !!selectedTemplate;
 
   return (
     <div className="min-h-screen bg-background">
@@ -370,8 +347,6 @@ export default function Home() {
               <TemplateGallery
                 onSelectTemplate={handleSelectTemplate}
                 selectedTemplate={selectedTemplate}
-                onUploadStyle={handleStyleSelected}
-                styleImage={styleBase64}
                 hasPhoto={!!photoBase64}
               />
             </div>

@@ -9,7 +9,7 @@ const TEMPLATE_COLORS = {
   "fantasy-elf": { primary: "#f59e0b", secondary: "#fbbf24", label: "Princess Royal" },
   superhero: { primary: "#ef4444", secondary: "#3b82f6", label: "Superhero" },
   space: { primary: "#8b5cf6", secondary: "#a78bfa", label: "Space Explorer" },
-  "upload-style": { primary: "#8b5cf6", secondary: "#06b6d4", label: "Upload Style" },
+  pixar: { primary: "#f59e0b", secondary: "#ef4444", label: "PIXAR Studio" },
 };
 
 const STATUS_PHASES = [

@@ -3,12 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { TEMPLATES } from "@/lib/templates";
-import ImageUploader from "@/components/ImageUploader";
 
-export default function TemplateGallery({ onSelectTemplate, selectedTemplate, onUploadStyle, styleImage, hasPhoto = false }) {
+export default function TemplateGallery({ onSelectTemplate, selectedTemplate, hasPhoto = false }) {
   const [hoveredId, setHoveredId] = useState(null);
   const [ready, setReady] = useState(false);
-  const showStyleUpload = selectedTemplate?.id === "upload-style";
   const gridRef = useRef(null);
   const playedRef = useRef(false);
 
@@ -120,15 +118,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplate, on
         <p className="text-[11px] text-muted/60 text-center mt-1">📸 Upload foto terlebih dahulu untuk memilih gaya</p>
       )}
 
-      {showStyleUpload && (
-        <div className="space-y-2">
-          <p className="text-xs text-muted">Upload gambar referensi — AI akan mengikuti gaya dari gambar ini</p>
-          <div className="bg-card border border-border rounded-xl">
-            <ImageUploader label="🎨 Upload Gambar Referensi" icon="🎨" onImageSelected={(base64) => onUploadStyle?.(base64)} />
-          </div>
-          {styleImage && <p className="text-xs text-green-500 flex items-center gap-1">✓ Gambar referensi siap</p>}
-        </div>
-      )}
+
     </div>
   );
 }
