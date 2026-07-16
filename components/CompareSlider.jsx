@@ -7,14 +7,14 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
   const [sliderPos, setSliderPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const [afterImageError, setAfterImageError] = useState(false);
-  const [useAfterProxy, setUseAfterProxy] = useState(false);
   const [beforeImageError, setBeforeImageError] = useState(false);
   const containerRef = useRef(null);
   const afterRef = useRef(null);
   const beforeRef = useRef(null);
 
-  const getProxyUrl = useCallback((url) => {
-    if (!url || url.startsWith("data:") || url.startsWith("/")) return url;
+  const getSafeUrl = useCallback((url) => {
+    // Proxy semua URL eksternal biar aman dari CORS di mobile
+    if (!url || url.startsWith("data:") || url.startsWith("/") || url.startsWith("blob:")) return url;
     return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   }, []);
 
@@ -24,7 +24,6 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
 
   useEffect(() => {
     setAfterImageError(false);
-    setUseAfterProxy(false);
     setBeforeImageError(false);
   }, [beforeImage, afterImage]);
 
@@ -114,19 +113,13 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
           ) : (
             <img
               ref={afterRef}
-              src={useAfterProxy ? getProxyUrl(afterImage) : afterImage}
+              src={getSafeUrl(afterImage)}
               alt={afterLabel}
               className="w-full h-auto block"
               draggable={false}
-              crossOrigin={useAfterProxy ? undefined : "anonymous"}
+              crossOrigin="anonymous"
               onLoad={handleImageLoad}
-              onError={() => {
-                if (!useAfterProxy) {
-                  setUseAfterProxy(true);
-                } else {
-                  setAfterImageError(true);
-                }
-              }}
+              onError={() => setAfterImageError(true)}
             />
           )}
 
