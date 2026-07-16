@@ -307,7 +307,7 @@ export default function Home() {
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🎨</span>
+            
             <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Photobox AI
             </span>
@@ -317,11 +317,11 @@ export default function Home() {
               Ubah fotomu dengan AI ✨
             </p>
             <a
-              href="/admin"
+              href="/aiadmin"
               className="text-xs text-muted hover:text-primary transition-colors"
               title="Halaman Admin"
             >
-              ⚙️ Admin
+              Admin
             </a>
           </div>
         </div>
@@ -441,9 +441,9 @@ export default function Home() {
               />
             )}
             {isLoading ? (
-              <><span className="animate-spin">⏳</span> Memproses...</>
+              <>Memproses...</>
             ) : (
-              <><span className="text-lg">✨</span> LIHAT TRANSFORMASIMU</>
+              <>LIHAT TRANSFORMASIMU</>
             )}
           </motion.button>
 
@@ -501,7 +501,7 @@ export default function Home() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
-                  📥 Download HD
+                  Download HD
                 </motion.button>
               </div>
             </div>

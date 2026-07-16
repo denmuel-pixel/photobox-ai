@@ -164,7 +164,7 @@ export default function HeroExample({ onTryNow }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            ✨ COBA SEKARANG — GRATIS
+COBA SEKARANG — GRATIS
           </motion.button>
 
           <div className="flex items-center gap-6 text-xs text-muted">

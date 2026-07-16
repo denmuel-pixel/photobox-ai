@@ -87,7 +87,7 @@ export default function AdminPage() {
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl">⚙️</span>
+            
             <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Photobox Admin
             </span>
@@ -143,9 +143,9 @@ export default function AdminPage() {
               className="px-6 py-2.5 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
             >
               {generating ? (
-                <><span className="animate-spin">⏳</span> Membuat...</>
+                <>Membuat...</>
               ) : (
-                <><span>🎟️</span> Generate Kode</>
+                <>Generate Kode</>
               )}
             </button>
           </div>
@@ -168,7 +168,7 @@ export default function AdminPage() {
                       onClick={copyAllNew}
                       className="text-xs px-2.5 py-1 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors"
                     >
-                      📋 Salin Semua
+                      Salin Semua
                     </button>
                     <button
                       onClick={() => setShowNewCodes(false)}
@@ -186,9 +186,9 @@ export default function AdminPage() {
                       className="relative font-mono text-xs bg-background border border-border rounded-lg px-3 py-2 text-center hover:border-primary transition-colors group"
                     >
                       <span>{code}</span>
-                      <span className="absolute -top-1.5 -right-1.5 text-[10px] bg-primary text-white w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        {copiedIndex === i ? "✓" : "📋"}
-                      </span>
+                      {copiedIndex === i && (
+                        <span className="absolute -top-1.5 -right-1.5 text-[10px] bg-primary text-white w-4 h-4 rounded-full flex items-center justify-center">✓</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -219,7 +219,6 @@ export default function AdminPage() {
             disabled={loading}
             className="text-xs text-muted hover:text-primary transition-colors flex items-center gap-1 disabled:opacity-50"
           >
-            <span className={`inline-block ${loading ? "animate-spin" : ""}`}>🔄</span>
             Refresh
           </button>
         </div>
@@ -229,11 +228,11 @@ export default function AdminPage() {
 
           {loading ? (
             <div className="text-center py-8 text-muted">
-              <span className="animate-spin inline-block">⏳</span> Memuat...
+              Memuat...
             </div>
           ) : codes.length === 0 ? (
             <div className="text-center py-8 text-muted">
-              <p className="text-2xl mb-2">🎟️</p>
+              
               <p>Belum ada kode. Buat kode pertama kamu!</p>
             </div>
           ) : (

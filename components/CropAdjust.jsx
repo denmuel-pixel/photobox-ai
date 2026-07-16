@@ -210,7 +210,7 @@ export default function CropAdjust({ imageSrc, onCropComplete, onCancel, isVisib
                   : "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40"
               }`}
             >
-              {isProcessing ? "⏳ Memotong..." : "✂️ Terapkan"}
+              {isProcessing ? "Memotong..." : "Terapkan"}
             </button>
           </div>
         </div>

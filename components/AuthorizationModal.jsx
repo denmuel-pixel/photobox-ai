@@ -108,7 +108,7 @@ export default function AuthorizationModal({ isOpen, onClose, onAuthorized }) {
                       setError("");
                       setSuccessInfo(null);
                     }}
-                    placeholder="Contoh: ABCDE-12345"
+                    placeholder="Contoh: A7K2"
                     maxLength={20}
                     disabled={isChecking || !!successInfo}
                     className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground text-center text-lg font-mono tracking-widest placeholder:text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:opacity-50 uppercase"
@@ -172,11 +172,11 @@ export default function AuthorizationModal({ isOpen, onClose, onAuthorized }) {
                     className="flex-1 px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isChecking ? (
-                      <><span className="animate-spin">⏳</span> Memeriksa...</>
+                      <>Memeriksa...</>
                     ) : successInfo ? (
-                      <><span className="animate-spin">⏳</span> Mengalihkan...</>
+                      <>Mengalihkan...</>
                     ) : (
-                      <>✅ Verifikasi</>
+                      <>Verifikasi</>
                     )}
                   </button>
                 </div>

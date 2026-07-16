@@ -63,7 +63,7 @@ export default function PixarNameFormInline({ onSubmit, onCancel }) {
           disabled={!name.trim()}
           className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-red-500 text-white rounded-xl font-medium shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          ✨ Buat Postermu!
+Buat Postermu!
         </button>
       </div>
     </form>

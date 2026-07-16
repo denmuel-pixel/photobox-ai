@@ -1,16 +1,14 @@
 import { readCodes, writeCodes } from "@/lib/storage";
 import crypto from "crypto";
 
-function generateCode(length = 8) {
+function generateCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // tanpa 0, O, I, 1
   let code = "";
-  const bytes = crypto.randomBytes(length);
-  for (let i = 0; i < length; i++) {
+  const bytes = crypto.randomBytes(4);
+  for (let i = 0; i < 4; i++) {
     code += chars[bytes[i] % chars.length];
   }
-  // Format: XXXXX-XXXXX
-  const mid = Math.floor(code.length / 2);
-  return code.slice(0, mid) + "-" + code.slice(mid);
+  return code;
 }
 
 // GET: List semua kode
