@@ -122,7 +122,7 @@ export default function ImageUploader({ onImageSelected, label, icon = "📸" })
         <AnimatePresence mode="wait">
           {preview ? (
             <motion.div
-              key="preview"
+              key={`preview-${fileName || "upload"}`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}

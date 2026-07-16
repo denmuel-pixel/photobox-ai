@@ -271,7 +271,7 @@ export default function AdminPage() {
                           <div className="flex gap-0.5">
                             {Array.from({ length: item.maxUses || 1 }, (_, i) => (
                               <span
-                                key={i}
+                                key={`${item.code}-usage-${i}`}
                                 className={`w-2 h-2 rounded-full ${
                                   i < ((item.uses || 0) >= (item.maxUses || 1) ? 0 : (item.maxUses || 1) - (item.uses || 0))
                                     ? "bg-success"

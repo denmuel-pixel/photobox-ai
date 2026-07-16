@@ -173,7 +173,7 @@ export default function LoadingOverlay({
           {/* Sparkle particles */}
           {[0, 1, 2].map((i) => (
             <motion.div
-              key={i}
+              key={`spark-${i}`}
               className="absolute w-1.5 h-1.5 rounded-full"
               style={{
                 backgroundColor: colors.primary,
@@ -234,7 +234,7 @@ export default function LoadingOverlay({
         {/* ===== STATUS TEXT ===== */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={phaseKey}
+            key={`phase-${phaseKey}`}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}

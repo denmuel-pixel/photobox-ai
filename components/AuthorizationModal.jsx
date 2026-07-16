@@ -66,6 +66,7 @@ export default function AuthorizationModal({ isOpen, onClose, onAuthorized }) {
         <>
           {/* Backdrop */}
           <motion.div
+            key="auth-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -75,6 +76,7 @@ export default function AuthorizationModal({ isOpen, onClose, onAuthorized }) {
 
           {/* Modal */}
           <motion.div
+            key="auth-modal"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -130,7 +132,7 @@ export default function AuthorizationModal({ isOpen, onClose, onAuthorized }) {
                         <div className="flex gap-0.5">
                           {Array.from({ length: successInfo.maxUses }, (_, i) => (
                             <span
-                              key={i}
+                              key={`usage-dot-${i}`}
                               className={`w-2.5 h-2.5 rounded-full ${
                                 i < successInfo.remaining
                                   ? "bg-success"

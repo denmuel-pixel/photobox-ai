@@ -20,6 +20,7 @@ export default function Home() {
   const [photoBase64, setPhotoBase64] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [resultUrl, setResultUrl] = useState(null);
+  const [resultMessage, setResultMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showScan, setShowScan] = useState(false);
@@ -43,6 +44,7 @@ export default function Home() {
 
   const handlePhotoSelected = useCallback((base64) => {
     setResultUrl(null);
+    setResultMessage(null);
     setError(null);
     setFaceData(null);
     if (base64) {
@@ -94,6 +96,7 @@ export default function Home() {
   const handleSelectTemplate = useCallback((template) => {
     playClick();
     setResultUrl(null);
+    setResultMessage(null);
     setError(null);
     if (template.id === "pixar") {
       pendingTemplateRef.current = template;
@@ -136,6 +139,7 @@ export default function Home() {
     setIsLoading(true);
     setError(null);
     setResultUrl(null);
+    setResultMessage(null);
 
     try {
       let prompt, strength;
@@ -155,13 +159,18 @@ export default function Home() {
           prompt,
           strength,
           mode: "template",
+          templateId: selectedTemplate?.id || null,
         }),
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Gagal memproses gambar");
+      if (!data?.resultUrl || typeof data.resultUrl !== "string") {
+        throw new Error("URL hasil generate tidak valid");
+      }
       doneAudio.play().catch(() => {}); // play done sound
       setResultUrl(data.resultUrl);
+      setResultMessage(data.fallback ? data.message : null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -222,6 +231,7 @@ export default function Home() {
     setRawPhotoBase64(null);
     setSelectedTemplate(null);
     setResultUrl(null);
+    setResultMessage(null);
     setError(null);
     setShowScan(false);
     setShowCrop(false);
@@ -267,6 +277,7 @@ export default function Home() {
         {showPixarNameModal && (
           <>
             <motion.div
+              key="pixar-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -274,6 +285,7 @@ export default function Home() {
               onClick={() => setShowPixarNameModal(false)}
             />
             <motion.div
+              key="pixar-modal"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -369,7 +381,7 @@ export default function Home() {
             <div className="bg-card border border-border rounded-2xl p-5">
               <div className="relative">
                 <ImageUploader
-                  key={uploadKey}
+                  key={`upload-${uploadKey}`}
                   label="📸 Upload Foto Kamu"
                   icon="📸"
                   onImageSelected={handlePhotoSelected}
@@ -387,7 +399,7 @@ export default function Home() {
                   onFacesDetected={handleFacesDetected}
                 />
                 <CropAdjust
-                  key={cropKey}
+                  key={`crop-${cropKey}`}
                   imageSrc={rawPhotoBase64}
                   isVisible={showCrop}
                   onCropComplete={handleCropComplete}
@@ -484,9 +496,15 @@ export default function Home() {
               >
                 <span className="text-3xl">🔥</span>
                 <h2 className="text-xl font-bold mt-1">Keren! Ini hasil transformasimu!</h2>
+                {resultMessage && (
+                  <p className="text-xs text-amber-300 mt-3 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 inline-block">
+                    {resultMessage}
+                  </p>
+                )}
               </motion.div>
 
               <CompareSlider
+                key={`${photoBase64}-${resultUrl}`}
                 beforeImage={photoBase64}
                 afterImage={resultUrl}
                 beforeLabel="Asli"

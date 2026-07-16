@@ -33,6 +33,7 @@ export default function AppSplash({ children }) {
       <AnimatePresence>
         {showSplash && (
           <motion.div
+            key="splash-screen"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
@@ -84,7 +85,7 @@ export default function AppSplash({ children }) {
             >
               {[0, 1, 2].map((i) => (
                 <motion.div
-                  key={i}
+                  key={`splash-dot-${i}`}
                   className="w-2 h-2 rounded-full bg-primary/60"
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{

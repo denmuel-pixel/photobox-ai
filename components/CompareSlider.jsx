@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "Asli", afterLabel = "Hasil AI" }) {
   const [sliderPos, setSliderPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [afterImageError, setAfterImageError] = useState(false);
+  const [beforeImageError, setBeforeImageError] = useState(false);
   const containerRef = useRef(null);
   const afterRef = useRef(null);
   const beforeRef = useRef(null);
@@ -14,6 +15,11 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
   const handleImageLoad = useCallback(() => {
     // Trigger re-render after images load
   }, []);
+
+  useEffect(() => {
+    setAfterImageError(false);
+    setBeforeImageError(false);
+  }, [beforeImage, afterImage]);
 
   const handleMove = useCallback(
     (clientX) => {
@@ -65,6 +71,7 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
 
   return (
     <motion.div
+      key={`${beforeImage}-${afterImage}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="w-full"
@@ -92,10 +99,10 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
       >
         <div className="relative w-full">
           {/* After image - ditampilkan penuh sebagai background */}
-          {imageError ? (
+          {afterImageError ? (
             <div className="w-full aspect-square flex flex-col items-center justify-center bg-card text-muted gap-2 p-4">
               <span className="text-2xl">😕</span>
-              <p className="text-sm text-center">Gambar gagal dimuat. Coba generate ulang.</p>
+              <p className="text-sm text-center">Gambar hasil gagal dimuat. Coba generate ulang.</p>
             </div>
           ) : (
             <img
@@ -104,8 +111,9 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
               alt={afterLabel}
               className="w-full h-auto block"
               draggable={false}
+              crossOrigin="anonymous"
               onLoad={handleImageLoad}
-              onError={() => setImageError(true)}
+              onError={() => setAfterImageError(true)}
             />
           )}
 
@@ -114,20 +122,27 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
             className="absolute inset-0 overflow-hidden"
             style={{ width: `${sliderPos}%` }}
           >
-            <img
-              ref={beforeRef}
-              src={beforeImage}
-              alt={beforeLabel}
-              className="block"
-              draggable={false}
-              style={{
-                width: `${100 / (sliderPos / 100)}%`,
-                maxWidth: `${100 / (sliderPos / 100)}%`,
-                height: "auto",
-              }}
-              onLoad={handleImageLoad}
-              onError={() => setImageError(true)}
-            />
+            {beforeImageError ? (
+              <div className="w-full h-full flex items-center justify-center bg-card text-muted text-xs px-4 text-center">
+                Gambar referensi tidak tersedia.
+              </div>
+            ) : (
+              <img
+                ref={beforeRef}
+                src={beforeImage}
+                alt={beforeLabel}
+                className="block"
+                draggable={false}
+                crossOrigin="anonymous"
+                style={{
+                  width: `${100 / (sliderPos / 100)}%`,
+                  maxWidth: `${100 / (sliderPos / 100)}%`,
+                  height: "auto",
+                }}
+                onLoad={handleImageLoad}
+                onError={() => setBeforeImageError(true)}
+              />
+            )}
           </div>
 
           {/* Slider handle */}
