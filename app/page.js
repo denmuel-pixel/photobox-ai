@@ -34,6 +34,7 @@ export default function Home() {
   const isAuthorizedRef = useRef(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const uploadSectionRef = useRef(null);
+  const templateSectionRef = useRef(null);
   const generateRef = useRef(null);
   const { playClick, playScan, stopScan, playSparks } = useSound();
   const doneAudioRef = useRef(null);
@@ -82,6 +83,10 @@ export default function Home() {
 
   const handleFacesDetected = useCallback((data) => {
     setFaceData(data);
+    // Scroll ke template gallery agar user langsung pilih gaya
+    setTimeout(() => {
+      templateSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
   }, []);
 
   const handleStyleSelected = useCallback((base64) => {
@@ -357,10 +362,11 @@ export default function Home() {
 
           {/* Right: Templates */}
           <motion.div
+            ref={templateSectionRef}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="bg-card border border-border rounded-2xl p-5 scroll-mt-24">
               <TemplateGallery
                 onSelectTemplate={handleSelectTemplate}
                 selectedTemplate={selectedTemplate}
