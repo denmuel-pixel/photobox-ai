@@ -27,6 +27,9 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchCodes();
+    // Refresh otomatis tiap 5 detik biar data selalu up-to-date
+    const interval = setInterval(fetchCodes, 5000);
+    return () => clearInterval(interval);
   }, [fetchCodes]);
 
   const handleGenerate = async () => {
@@ -209,10 +212,20 @@ export default function AdminPage() {
 
         {/* Codes List */}
         <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
-          <h2 className="text-lg font-bold mb-1">Riwayat Kode</h2>
-          <p className="text-sm text-muted mb-4">
-            Semua kode yang pernah dibuat. Setiap kode bisa dipakai hingga 5 kali.
-          </p>
+          <div className="flex items-center justify-between mb-1">
+          <h2 className="text-lg font-bold">Riwayat Kode</h2>
+          <button
+            onClick={fetchCodes}
+            disabled={loading}
+            className="text-xs text-muted hover:text-primary transition-colors flex items-center gap-1 disabled:opacity-50"
+          >
+            <span className={`inline-block ${loading ? "animate-spin" : ""}`}>🔄</span>
+            Refresh
+          </button>
+        </div>
+        <p className="text-sm text-muted mb-4">
+          Semua kode yang pernah dibuat. Setiap kode bisa dipakai hingga 5 kali.
+        </p>
 
           {loading ? (
             <div className="text-center py-8 text-muted">
