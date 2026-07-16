@@ -228,12 +228,22 @@ export default function Home() {
     playClick();
     if (!resultUrl) return;
     try {
-      // Ambil gambar via proxy biar aman dari CORS di mobile
       const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(resultUrl)}`;
       const res = await fetch(proxyUrl);
       const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const fileName = `photobox-${Date.now()}.jpg`;
 
+      // Web Share API — di iPhone ini munculin "Save to Photos" bukan Files
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], fileName, { type: "image/jpeg" });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: "Photobox AI" });
+          return;
+        }
+      }
+
+      // Fallback: anchor download (desktop)
+      const blobUrl = URL.createObjectURL(blob);
       const img = new Image();
       img.crossOrigin = "anonymous";
 
@@ -249,7 +259,7 @@ export default function Home() {
               const jpgUrl = URL.createObjectURL(jpgBlob);
               const link = document.createElement("a");
               link.href = jpgUrl;
-              link.download = `photobox-${Date.now()}.jpg`;
+              link.download = fileName;
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
