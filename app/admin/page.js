@@ -11,6 +11,7 @@ export default function AdminPage() {
   const [newCodes, setNewCodes] = useState([]);
   const [showNewCodes, setShowNewCodes] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [adminError, setAdminError] = useState(null);
 
   const fetchCodes = useCallback(async () => {
     try {
@@ -30,6 +31,7 @@ export default function AdminPage() {
 
   const handleGenerate = async () => {
     setGenerating(true);
+    setAdminError(null);
     try {
       const res = await fetch("/api/admin/codes", {
         method: "POST",
@@ -42,9 +44,11 @@ export default function AdminPage() {
         setShowNewCodes(true);
         fetchCodes();
         setTimeout(() => setShowNewCodes(false), 8000);
+      } else {
+        setAdminError(data.error || "Gagal membuat kode");
       }
-    } catch {
-      console.error("Gagal generate kode");
+    } catch (err) {
+      setAdminError(err.message || "Gagal terhubung ke server");
     } finally {
       setGenerating(false);
     }
@@ -187,6 +191,20 @@ export default function AdminPage() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+          {/* Error Alert */}
+          {adminError && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 bg-error/10 border border-error/30 rounded-xl p-4"
+            >
+              <p className="text-sm text-error flex items-center gap-2">
+                <span>⚠️</span> {adminError}
+              </p>
+            </motion.div>
+          )}
         </div>
 
         {/* Codes List */}
