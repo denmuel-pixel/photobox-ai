@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "Asli", afterLabel = "Hasil AI" }) {
   const [sliderPos, setSliderPos] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const containerRef = useRef(null);
   const afterRef = useRef(null);
   const beforeRef = useRef(null);
@@ -91,14 +92,22 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
       >
         <div className="relative w-full">
           {/* After image - ditampilkan penuh sebagai background */}
-          <img
-            ref={afterRef}
-            src={afterImage}
-            alt={afterLabel}
-            className="w-full h-auto block"
-            draggable={false}
-            onLoad={handleImageLoad}
-          />
+          {imageError ? (
+            <div className="w-full aspect-square flex flex-col items-center justify-center bg-card text-muted gap-2 p-4">
+              <span className="text-2xl">😕</span>
+              <p className="text-sm text-center">Gambar gagal dimuat. Coba generate ulang.</p>
+            </div>
+          ) : (
+            <img
+              ref={afterRef}
+              src={afterImage}
+              alt={afterLabel}
+              className="w-full h-auto block"
+              draggable={false}
+              onLoad={handleImageLoad}
+              onError={() => setImageError(true)}
+            />
+          )}
 
           {/* Before image - overlay dengan clip */}
           <div
@@ -117,6 +126,7 @@ export default function CompareSlider({ beforeImage, afterImage, beforeLabel = "
                 height: "auto",
               }}
               onLoad={handleImageLoad}
+              onError={() => setImageError(true)}
             />
           </div>
 
