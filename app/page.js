@@ -28,7 +28,6 @@ export default function Home() {
   const [rawPhotoBase64, setRawPhotoBase64] = useState(null);
   const [cropKey, setCropKey] = useState(0);
   const [uploadKey, setUploadKey] = useState(0);
-  const [showShareToast, setShowShareToast] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const isAuthorizedRef = useRef(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -164,30 +163,45 @@ export default function Home() {
     playClick();
     if (!resultUrl) return;
     try {
+      // Ambil gambar, konversi ke JPEG via canvas
       const res = await fetch(resultUrl);
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `photobox-${Date.now()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch {
-      window.open(resultUrl, "_blank");
-    }
-  };
+      const blobUrl = URL.createObjectURL(blob);
 
-  const handleShare = async () => {
-    playClick();
-    if (!resultUrl) return;
-    try {
-      await navigator.clipboard.writeText(resultUrl);
-      setShowShareToast(true);
-      setTimeout(() => setShowShareToast(false), 2000);
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+
+      await new Promise((resolve, reject) => {
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob((jpgBlob) => {
+            if (jpgBlob) {
+              const jpgUrl = URL.createObjectURL(jpgBlob);
+              const link = document.createElement("a");
+              link.href = jpgUrl;
+              link.download = `photobox-${Date.now()}.jpg`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(jpgUrl);
+            }
+            URL.revokeObjectURL(blobUrl);
+            resolve();
+          }, "image/jpeg", 0.92);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(blobUrl);
+          reject();
+        };
+        img.src = blobUrl;
+      });
     } catch {
-      // fallback
+      // Fallback: buka di tab baru
+      window.open(resultUrl, "_blank");
     }
   };
 
@@ -228,20 +242,6 @@ export default function Home() {
         onClose={() => setShowAuthModal(false)}
         onAuthorized={handleAuthorized}
       />
-
-      {/* Share Toast */}
-      <AnimatePresence>
-        {showShareToast && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-success text-white text-sm px-4 py-2 rounded-xl shadow-lg"
-          >
-            ✓ Link hasil disalin!
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
@@ -437,29 +437,11 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
                 <motion.button
                   onClick={handleDownload}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
+                  className="flex-1 px-8 py-3.5 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >
                   📥 Download HD
-                </motion.button>
-
-                <motion.button
-                  onClick={handleShare}
-                  className="flex-1 px-6 py-3 bg-card border border-border text-foreground rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-card-hover transition-all"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  🔗 Copy Link
-                </motion.button>
-
-                <motion.button
-                  onClick={handleReset}
-                  className="flex-1 px-6 py-3 bg-card border border-border text-foreground rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-card-hover transition-all"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  🔄 Buat Lagi
                 </motion.button>
               </div>
             </div>
@@ -467,41 +449,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* SECTION 4: MORE TEMPLATES — jika sudah punya hasil */}
-      {resultUrl && (
-        <section className="max-w-5xl mx-auto px-4 pb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h3 className="text-center text-lg font-semibold mb-6">
-              Masih kurang puas? Coba gaya lain...
-            </h3>
-            <div className="flex flex-wrap justify-center gap-3 max-w-lg mx-auto">
-              {TEMPLATES.filter((t) => t.id !== selectedTemplate?.id)
-                .slice(0, 7)
-                .map((t) => (
-                  <motion.button
-                    key={t.id}
-                    onClick={() => {
-                      setSelectedTemplate(t);
-                      setResultUrl(null);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="flex flex-col items-center gap-1 p-2 w-[68px] rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-card-hover transition-all"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    title={t.name}
-                  >
-                    <span className="text-xl">{t.icon}</span>
-                    <span className="text-[9px] text-muted truncate max-w-full">{t.name}</span>
-                  </motion.button>
-                ))}
-            </div>
-          </motion.div>
-        </section>
-      )}
+
 
       {/* Footer */}
       <footer className="border-t border-border">
