@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.1",
+    "@vercel/kv": "^3.0.0",
     "browser-image-compression": "^2.0.2",
     "face-api.js": "^0.22.2",
     "framer-motion": "^12.42.2",

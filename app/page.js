@@ -10,6 +10,7 @@ import ScanAnimation from "@/components/ScanAnimation";
 import FaceDetection from "@/components/FaceDetection";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import CropAdjust from "@/components/CropAdjust";
+import AuthorizationModal from "@/components/AuthorizationModal";
 import { useSound } from "@/lib/useSound";
 import { STATS } from "@/lib/examples";
 import { TEMPLATES, getRandomPrompt } from "@/lib/templates";
@@ -29,6 +30,8 @@ export default function Home() {
   const [cropKey, setCropKey] = useState(0);
   const [uploadKey, setUploadKey] = useState(0);
   const [showShareToast, setShowShareToast] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const uploadSectionRef = useRef(null);
   const generateRef = useRef(null);
   const { playClick, playScan, stopScan, playSparks } = useSound();
@@ -113,6 +116,12 @@ export default function Home() {
     }
     if (selectedTemplate.id === "upload-style" && !styleBase64) {
       setError("Upload gambar referensi style terlebih dahulu");
+      return;
+    }
+
+    // Cek otorisasi
+    if (!isAuthorized) {
+      setShowAuthModal(true);
       return;
     }
 
@@ -210,6 +219,12 @@ export default function Home() {
     setUploadKey((k) => k + 1);
   };
 
+  const handleAuthorized = () => {
+    setIsAuthorized(true);
+    setShowAuthModal(false);
+    // User tinggal klik tombol "LIHAT TRANSFORMASIMU" lagi untuk lanjut
+  };
+
   const isReady = selectedTemplate && (
     selectedTemplate.id !== "upload-style" ? true : styleBase64
   );
@@ -220,6 +235,13 @@ export default function Home() {
         isVisible={isLoading}
         photoSrc={photoBase64}
         templateId={selectedTemplate?.id}
+      />
+
+      {/* Authorization Modal */}
+      <AuthorizationModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthorized={handleAuthorized}
       />
 
       {/* Share Toast */}
@@ -245,9 +267,18 @@ export default function Home() {
               Photobox AI
             </span>
           </div>
-          <p className="text-xs text-muted hidden sm:block">
-            Ubah fotomu dengan AI ✨
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs text-muted hidden sm:block">
+              Ubah fotomu dengan AI ✨
+            </p>
+            <a
+              href="/admin"
+              className="text-xs text-muted hover:text-primary transition-colors"
+              title="Halaman Admin"
+            >
+              ⚙️ Admin
+            </a>
+          </div>
         </div>
       </header>
 
