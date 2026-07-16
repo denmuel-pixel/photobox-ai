@@ -381,13 +381,6 @@ export default function Home() {
             <p className="text-xs text-muted hidden sm:block">
               Ubah fotomu dengan AI ✨
             </p>
-            <a
-              href="/aiadmin"
-              className="text-xs text-muted hover:text-primary transition-colors"
-              title="Halaman Admin"
-            >
-              Admin
-            </a>
           </div>
         </div>
       </header>
