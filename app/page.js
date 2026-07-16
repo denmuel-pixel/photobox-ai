@@ -514,7 +514,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border">
         <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted">
-          <p>Photobox AI — Dibuat dengan ❤️ menggunakan Next.js & Fal AI</p>
+          <p>Photobox AI — Dibuat dengan ❤️</p>
           <p>{STATS.totalGenerated.toLocaleString()} foto telah dihasilkan</p>
         </div>
       </footer>
