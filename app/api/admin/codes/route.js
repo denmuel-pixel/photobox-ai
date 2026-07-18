@@ -49,7 +49,13 @@ export async function POST(request) {
       codes.push(entry);
     }
 
-    await writeCodes(codes);
+    const ok = await writeCodes(codes);
+    if (!ok) {
+      return Response.json(
+        { error: "Gagal menyimpan kode. Setup Vercel KV Redis." },
+        { status: 500 }
+      );
+    }
 
     return Response.json({
       success: true,

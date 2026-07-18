@@ -35,7 +35,18 @@ export async function POST(request) {
     // Tambah pemakaian
     found.uses = uses + 1;
     found.usedAt = new Date().toISOString();
-    await writeCodes(codes);
+    const saved = await writeCodes(codes);
+
+    if (!saved) {
+      return Response.json(
+        {
+          valid: false,
+          error:
+            "Penyimpanan kode tidak persisten. Setup Vercel KV Redis agar kode berfungsi dengan benar.",
+        },
+        { status: 500 }
+      );
+    }
 
     const remaining = maxUses - found.uses;
     return Response.json({
