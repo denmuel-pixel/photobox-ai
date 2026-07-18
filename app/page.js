@@ -29,6 +29,7 @@ export default function Home() {
   const [showCrop, setShowCrop] = useState(false);
   const [rawPhotoBase64, setRawPhotoBase64] = useState(null);
   const [cropKey, setCropKey] = useState(0);
+  const [pendingRequestId, setPendingRequestId] = useState(null);
   const [uploadKey, setUploadKey] = useState(0);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const isAuthorizedRef = useRef(false);
@@ -188,32 +189,49 @@ export default function Home() {
       const requestId = submitData.requestId;
       if (!requestId) throw new Error("Tidak mendapat ID job dari server");
 
-      // === STEP 2: Poll status ===
-      const poll = async () => {
-        const statusRes = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ requestId }),
-        });
-        const statusData = await statusRes.json();
-        if (!statusRes.ok) throw new Error(statusData.error || "Gagal cek status");
+      setPendingRequestId(requestId);
 
-        if (statusData.status === "COMPLETED") {
-          // === STEP 3: Ambil hasil ===
-          const resultRes = await fetch("/api/generate", {
+      // === STEP 2: Poll status (max 60x = ~2 menit) ===
+      let pollCount = 0;
+      const MAX_POLL = 60;
+
+      const poll = async () => {
+        pollCount++;
+        if (pollCount > MAX_POLL) {
+          setError("Hasil belum siap. Klik 'Coba Ambil Ulang' untuk mengecek lagi.");
+          setIsLoading(false);
+          return;
+        }
+
+        try {
+          const statusRes = await fetch("/api/generate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ requestId, fetchResult: true }),
+            body: JSON.stringify({ requestId }),
           });
-          const resultData = await resultRes.json();
-          if (!resultRes.ok) throw new Error(resultData.error || "Gagal ambil hasil");
+          const statusData = await statusRes.json();
+          if (!statusRes.ok) throw new Error(statusData.error || "Gagal cek status");
 
-          doneAudio.play().catch(() => {});
-          setResultUrl(resultData.resultUrl);
+          if (statusData.status === "COMPLETED") {
+            setPendingRequestId(null);
+            // === STEP 3: Ambil hasil ===
+            const resultRes = await fetch("/api/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ requestId, fetchResult: true }),
+            });
+            const resultData = await resultRes.json();
+            if (!resultRes.ok) throw new Error(resultData.error || "Gagal ambil hasil");
+
+            doneAudio.play().catch(() => {});
+            setResultUrl(resultData.resultUrl);
+            setIsLoading(false);
+          } else {
+            pollJobRef.current = setTimeout(poll, 2000);
+          }
+        } catch (err) {
+          setError("Gagal memeriksa status. " + err.message);
           setIsLoading(false);
-        } else {
-          // Lanjut poll 2 detik lagi
-          pollJobRef.current = setTimeout(poll, 2000);
         }
       };
 
@@ -281,6 +299,41 @@ export default function Home() {
     }
   };
 
+  const handleRetryResult = async () => {
+    if (!pendingRequestId) return;
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const statusRes = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: pendingRequestId }),
+      });
+      const statusData = await statusRes.json();
+      if (!statusRes.ok) throw new Error(statusData.error || "Gagal cek status");
+
+      if (statusData.status === "COMPLETED") {
+        const resultRes = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requestId: pendingRequestId, fetchResult: true }),
+        });
+        const resultData = await resultRes.json();
+        if (!resultRes.ok) throw new Error(resultData.error || "Gagal ambil hasil");
+
+        setPendingRequestId(null);
+        setResultUrl(resultData.resultUrl);
+      } else {
+        setError("Hasil AI masih diproses. Coba lagi beberapa saat.");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Cleanup polling on unmount
   useEffect(() => {
     return () => clearTimeout(pollJobRef.current);
@@ -294,6 +347,7 @@ export default function Home() {
     setRawPhotoBase64(null);
     setSelectedTemplate(null);
     setResultUrl(null);
+    setPendingRequestId(null);
     setResultMessage(null);
     setError(null);
     setShowScan(false);
@@ -516,13 +570,24 @@ export default function Home() {
           </motion.button>
 
           {error && (
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-error text-sm bg-error/10 px-4 py-2 rounded-lg border border-error/20"
+              className="flex flex-col items-center gap-3"
             >
-              {error}
-            </motion.p>
+              <p className="text-error text-sm bg-error/10 px-4 py-2 rounded-lg border border-error/20">
+                {error}
+              </p>
+              {pendingRequestId && (
+                <button
+                  onClick={handleRetryResult}
+                  disabled={isLoading}
+                  className="text-xs px-4 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors flex items-center gap-1.5"
+                >
+                  {isLoading ? "Memeriksa..." : "🔄 Coba Ambil Ulang"}
+                </button>
+              )}
+            </motion.div>
           )}
 
           {!photoBase64 && !isLoading && (
