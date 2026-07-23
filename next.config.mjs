@@ -9,10 +9,6 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "v5-edit.seedream.io",
-      },
-      {
-        protocol: "https",
         hostname: "**.cloudfront.net",
       },
       {

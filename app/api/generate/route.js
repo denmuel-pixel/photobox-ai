@@ -1,5 +1,5 @@
 import { fal } from "@fal-ai/client";
-import { submitSeedreamJob, checkJobStatus, getJobResult } from "@/lib/falAi";
+import { submitEditJob, checkJobStatus, getJobResult } from "@/lib/falAi";
 import { TEMPLATES } from "@/lib/templates";
 
 // Konfigurasi Fal AI (server-side only)
@@ -43,7 +43,7 @@ export async function POST(request) {
     }
 
     const actualPrompt = prompt || "A high quality portrait photo";
-    const requestIdNew = await submitSeedreamJob(image, actualPrompt, strength || 0.85);
+    const requestIdNew = await submitEditJob(image, actualPrompt, strength || 0.85);
 
     return Response.json({ success: true, requestId: requestIdNew });
   } catch (error) {
